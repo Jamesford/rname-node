@@ -2,11 +2,15 @@
 
 import { Command } from "commander";
 const program = new Command();
-// const { version } = require("../package.json");
+
+// Experimental JSON import is behind a flag
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
 
 program
   .name("rname")
-  .version("0.1.0", "-v, --version")
+  .version(version, "-v, --version")
   .description("Rename TV and Movies for Plex, with the help of TMDb")
   .option("-d, --debug", "display logs", false)
   .command("movie", "rename a movie", {
