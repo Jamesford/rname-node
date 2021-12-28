@@ -8,10 +8,12 @@ export function clean(str) {
 }
 
 export function cleanFilename(str) {
+  // Allowed: letters, numbers, spaces, and any of: ()-&,!%'
   return str.replace(/[^a-zA-Z\d\.\(\)\-\s\&\,\!\%\']/g, "");
 }
 
 export function cleanPath(str) {
+  // Allowed: letters, numbers, spaces, and any of: ()-&,!%'
   return str.replace(/[^a-zA-Z\d\.\(\)\-\s\&\,\!\%\']/g, "");
 }
 

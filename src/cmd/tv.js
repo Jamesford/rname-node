@@ -11,7 +11,7 @@ import { purge } from "../lib/purge.js";
 const program = new Command()
   .option("-q, --query <show name...>", "manually enter tv show name")
   .option("-i, --id <TMDb id>", "manually provide tv show id (overrides -q)")
-  .option("-p, --purge", "delete .txt, .exe files within the directory")
+  .option("-p, --purge", "delete files within directory that are not renamed")
   .action(errors(main))
   .parse();
 
@@ -46,6 +46,11 @@ async function main(options, cmd) {
     })
     .sort((a, b) => a.startEpisode - b.startEpisode);
   // console.log({ filesMetadata });
+
+  if (filesMetadata.length === 0) {
+    console.log("No tv show files found");
+    process.exit(0);
+  }
 
   const query = opts.query
     ? opts.query.join(" ") // user provided query
@@ -109,7 +114,7 @@ async function main(options, cmd) {
   });
 
   if (confirm) {
-    if (opts.purge) await purge(dir, files);
+    // if (opts.purge) await purge(dir, files);
 
     const renamePromises = renames.map(({ file, rename }) =>
       fs.rename(join(dir, file), join(dir, rename))
@@ -118,5 +123,14 @@ async function main(options, cmd) {
     results.forEach(({ status, reason }) => {
       if (status === "rejected") console.error(reason);
     });
+    // Exit if a rename error occurs
+    if (results.find((r) => r.status === "rejected")) {
+      process.exit(1);
+    }
+
+    if (opts.purge) {
+      const renamesSet = new Set(renames.map((m) => m.rename));
+      await purge(dir, renamesSet);
+    }
   }
 }

@@ -16,12 +16,12 @@ program
     executableFile: "cmd/tv",
   })
   .alias("t")
+  .command("movie", "rename a movie", {
+    executableFile: "cmd/movie",
+  })
+  .alias("m")
   .command("test", "setup rname test directory", {
     executableFile: "cmd/test",
   });
-//   .command("movie", "rename a movie", {
-//     executableFile: "cmd/movie",
-//   })
-//   .alias("m");
 
 program.parse(process.argv);
