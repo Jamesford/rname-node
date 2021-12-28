@@ -6,6 +6,7 @@ import { extname, join } from "path";
 import prompts from "prompts";
 import kleur from "kleur";
 import fs from "fs/promises";
+import { clean, generateRenameTable } from "../lib/utils.js";
 
 const program = new Command()
   .option("-q, --query <show name...>", "manually enter tv show name")
@@ -225,41 +226,4 @@ async function getEpisodeTitles(id, season) {
     (acc, v) => ({ ...acc, [v.episode_number]: v.name }),
     {}
   );
-}
-
-function generateRenameTable(renames) {
-  const mo = renames.reduce((acc, v) => {
-    return v.file.length > acc ? v.file.length : acc;
-  }, 0);
-  const mr = renames.reduce((acc, v) => {
-    return v.rename.length > acc ? v.rename.length : acc;
-  }, 0);
-
-  let table = `┌${"".padEnd(mo + 2, "─")}┬${"".padEnd(mr + 2, "─")}┐\n`;
-  table += `│ ${"Original".padEnd(mo, " ")} │ ${"Rename".padEnd(mr, " ")} │\n`;
-  table += `├${"".padEnd(mo + 2, "─")}┼${"".padEnd(mr + 2, "─")}┤\n`;
-  renames.forEach((row, i) => {
-    const c = i % 2 === 0 ? kleur.white : kleur.dim;
-    table += `│ ${c(row.file.padEnd(mo, " "))} │ ${c(
-      row.rename.padEnd(mr, " ")
-    )} │\n`;
-  });
-  table += `└${"".padEnd(mo + 2, "─")}┴${"".padEnd(mr + 2, "─")}┘\n`;
-
-  return table;
-}
-
-function clean(str) {
-  return str
-    .replace(/[\._]/g, " ") // dots and underscores to spaces
-    .replace(/[^a-zA-Z\d\s]/, "") // only allow letters digits and spaces
-    .trim();
-}
-
-function cleanFilename(str) {
-  return str.replace(/[^a-zA-Z\d\.\(\)\-\s\&\,\!\%\']/g, "");
-}
-
-function cleanPath(str) {
-  return str.replace(/[^a-zA-Z\d\.\(\)\-\s\&\,\!\%\']/g, "");
 }
