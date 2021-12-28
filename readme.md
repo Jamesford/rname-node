@@ -19,3 +19,5 @@ Commands:
   help [command]  display help for command
 
 ```
+
+Movie & TV search powered by [The Movie DB](https://www.themoviedb.org/)
