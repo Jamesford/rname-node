@@ -1,5 +1,9 @@
 import kleur from "kleur";
 
+export function removeTrailingSlash(str) {
+  return str.replace(/\/$/, "");
+}
+
 export function clean(str) {
   return str
     .replace(/[\._]/g, " ") // dots and underscores to spaces

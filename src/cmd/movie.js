@@ -4,21 +4,29 @@ import prompts from "prompts";
 import kleur from "kleur";
 import fs from "fs/promises";
 import { errors } from "../lib/errors.js";
-import { clean, generateRenameTable } from "../lib/utils.js";
+import {
+  removeTrailingSlash,
+  clean,
+  generateRenameTable,
+} from "../lib/utils.js";
 import { getMovieByID, getMovieByQuery } from "../lib/tmdb.js";
 import { purge } from "../lib/purge.js";
 
 const program = new Command()
+  .usage("[directory] [options]")
+  .argument(
+    "[directory]",
+    "directory with files to rename",
+    removeTrailingSlash,
+    "."
+  )
   .option("-q, --query <movie name...>", "manually enter movie name")
   .option("-i, --id <TMDb id>", "manually provide movie id (overrides -q)")
   .option("-p, --purge", "delete files within directory that are not renamed")
   .action(errors(main))
   .parse();
 
-async function main(options, cmd) {
-  const opts = cmd.opts();
-  // console.log({ opts });
-
+async function main(dirName, opts) {
   const regex = new RegExp(/(.+)[._](\d{4})[._](?!\d{4})?/i);
   // https://support.plex.tv/articles/203824396-what-media-formats-are-supported/
   // plus additional common containers
@@ -35,7 +43,8 @@ async function main(options, cmd) {
     ".wmv",
   ]);
 
-  const dir = process.cwd();
+  const dir = join(process.cwd(), dirName);
+  const parent = join(dir, "..");
   const files = await fs.readdir(dir);
 
   const filesMetadata = files
@@ -96,7 +105,7 @@ async function main(options, cmd) {
 
   const subtitleDir = files.find((file) => /^subs?(titles?)?$/i.test(file));
   if (subtitleDir) {
-    let subDirStat = await fs.stat(subtitleDir);
+    let subDirStat = await fs.stat(join(dir, subtitleDir));
     if (!subDirStat.isFile()) {
       const subtitleRenames = (await fs.readdir(join(dir, subtitleDir)))
         .filter(
@@ -142,5 +151,8 @@ async function main(options, cmd) {
       const renamesSet = new Set(renames.map((m) => m.rename));
       await purge(dir, renamesSet);
     }
+
+    // Rename directory to "title (year)"
+    await fs.rename(dir, join(parent, `${title} (${year})`));
   }
 }

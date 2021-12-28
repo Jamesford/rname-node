@@ -4,24 +4,33 @@ import prompts from "prompts";
 import kleur from "kleur";
 import fs from "fs/promises";
 import { errors } from "../lib/errors.js";
-import { clean, generateRenameTable } from "../lib/utils.js";
+import {
+  removeTrailingSlash,
+  clean,
+  generateRenameTable,
+} from "../lib/utils.js";
 import { getShowByID, getShowByQuery, getEpisodeTitles } from "../lib/tmdb.js";
 import { purge } from "../lib/purge.js";
 
 const program = new Command()
+  .usage("[directory] [options]")
+  .argument(
+    "[directory]",
+    "directory with files to rename",
+    removeTrailingSlash,
+    "."
+  )
   .option("-q, --query <show name...>", "manually enter tv show name")
   .option("-i, --id <TMDb id>", "manually provide tv show id (overrides -q)")
   .option("-p, --purge", "delete files within directory that are not renamed")
   .action(errors(main))
   .parse();
 
-async function main(options, cmd) {
-  const opts = cmd.opts();
-  // console.log({ opts });
-
+async function main(dirName, opts) {
   const regex = new RegExp(/(.+?)s?(\d+)[ex](\d+)[ex-]{0,2}(\d+)?/i);
 
-  const dir = process.cwd();
+  const dir = join(process.cwd(), dirName);
+  const parent = join(dir, "..");
   const files = await fs.readdir(dir);
 
   const names = new Map();
@@ -132,5 +141,11 @@ async function main(options, cmd) {
       const renamesSet = new Set(renames.map((m) => m.rename));
       await purge(dir, renamesSet);
     }
+
+    // Rename directory to "Season XX"
+    await fs.rename(
+      dir,
+      join(parent, `Season ${season.toString().padStart(2, "0")}`)
+    );
   }
 }
