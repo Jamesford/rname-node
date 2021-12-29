@@ -99,7 +99,7 @@ async function main(dirName, opts) {
   let renames = [
     {
       file: meta.file,
-      rename: `${title} (${year}) {tmdb-${id}} ${meta.ext}`,
+      rename: `${title} (${year}) {tmdb-${id}}${meta.ext}`,
     },
   ];
 
