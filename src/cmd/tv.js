@@ -22,6 +22,7 @@ const program = new Command()
   )
   .option("-q, --query <show name...>", "manually enter tv show name")
   .option("-i, --id <TMDb id>", "manually provide tv show id (overrides -q)")
+  .option("-n, --none", "do not add episode names to the filenames", false)
   .option("-p, --purge", "delete files within directory that are not renamed")
   .action(errors(main))
   .parse();
@@ -85,7 +86,7 @@ async function main(dirName, opts) {
   );
   console.log(overview);
 
-  const episodeTitles = await getEpisodeTitles(id, season);
+  const episodeTitles = opts.none ? {} : await getEpisodeTitles(id, season);
 
   const renames = filesMetadata.map((meta) => {
     const epSeason = season.toString().padStart(2, "0");
