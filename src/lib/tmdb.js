@@ -64,7 +64,7 @@ export async function getMovieByQuery(query) {
     name: "value",
     message: "Multiple results found",
     choices: movies.map((movie, i) => ({
-      title: movie.title,
+      title: `${movie.title} (${movie.year})`,
       description: movie.overview,
       value: i,
     })),
@@ -77,7 +77,7 @@ export async function getMovieByQuery(query) {
 export async function getShowByID(tv_id) {
   const { apiKey } = await getConfig();
   const {
-    data: { id, name, overview },
+    data: { id, name, overview, first_air_date },
   } = await axios({
     method: "get",
     url: `https://api.themoviedb.org/3/tv/${tv_id}`,
@@ -86,7 +86,7 @@ export async function getShowByID(tv_id) {
       language: "en-US",
     },
   });
-  return { id, name, overview };
+  return { id, name, overview, year: first_air_date.substring(0, 4) };
 }
 
 export async function getShowByQuery(query) {
@@ -116,6 +116,7 @@ export async function getShowByQuery(query) {
     id: r.id,
     name: r.name,
     overview: r.overview,
+    year: r.first_air_date.substring(0, 4),
   }));
 
   if (total_results === 1) return shows[0];
@@ -125,7 +126,7 @@ export async function getShowByQuery(query) {
     name: "value",
     message: "Multiple results found",
     choices: shows.map((show, i) => ({
-      title: show.name,
+      title: `${show.name} (${show.year})`,
       description: show.overview,
       value: i,
     })),

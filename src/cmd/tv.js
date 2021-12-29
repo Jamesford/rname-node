@@ -73,13 +73,15 @@ async function main(dirName, opts) {
   const season = [...seasons.values()][0];
   // console.log({ query, season });
 
-  const { id, name, overview } = opts.id
+  const { id, name, overview, year } = opts.id
     ? await getShowByID(opts.id)
     : await getShowByQuery(query);
   // console.log({ id, name, overview });
 
   console.log(
-    `${kleur.bold().underline(name)} - https://www.themoviedb.org/tv/${id}`
+    `${kleur
+      .bold()
+      .underline(name)} (${year}) - https://www.themoviedb.org/tv/${id}`
   );
   console.log(overview);
 
@@ -90,7 +92,7 @@ async function main(dirName, opts) {
     const epStart = meta.startEpisode.toString().padStart(2, "0");
 
     // Base rename
-    let rename = `${name} - s${epSeason}e${epStart}`;
+    let rename = `${name} (${year}) - s${epSeason}e${epStart}`;
 
     // Handle dual-episode files (eg. Stargate SG-1 Season 1 Ep 1 & 2)
     if (meta.endEpisode) {
@@ -123,10 +125,11 @@ async function main(dirName, opts) {
   });
 
   if (confirm) {
-    // if (opts.purge) await purge(dir, files);
+    const seasonDir = `Season ${season.toString().padStart(2, "0")}`;
+    await fs.mkdir(join(dir, seasonDir));
 
     const renamePromises = renames.map(({ file, rename }) =>
-      fs.rename(join(dir, file), join(dir, rename))
+      fs.rename(join(dir, file), join(dir, seasonDir, rename))
     );
     const results = await Promise.allSettled(renamePromises);
     results.forEach(({ status, reason }) => {
@@ -138,14 +141,11 @@ async function main(dirName, opts) {
     }
 
     if (opts.purge) {
-      const renamesSet = new Set(renames.map((m) => m.rename));
+      const renamesSet = new Set([seasonDir]);
       await purge(dir, renamesSet);
     }
 
     // Rename directory to "Season XX"
-    await fs.rename(
-      dir,
-      join(parent, `Season ${season.toString().padStart(2, "0")}`)
-    );
+    await fs.rename(dir, join(parent, `${name} (${year}) {tmdb-${id}}`));
   }
 }

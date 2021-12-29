@@ -99,7 +99,7 @@ async function main(dirName, opts) {
   let renames = [
     {
       file: meta.file,
-      rename: `${title} (${year})${meta.ext}`,
+      rename: `${title} (${year}) {tmdb-${id}} ${meta.ext}`,
     },
   ];
 
@@ -114,8 +114,8 @@ async function main(dirName, opts) {
         )
         .map((file, i, arr) => ({
           file: `${subtitleDir}/${file}`,
-          rename: `${title} (${year})${
-            arr.length > 1 ? "_" + (i + 1) : ""
+          rename: `${title} (${year}) {tmdb-${id}}${
+            arr.length > 1 ? ` ${i + 1}` : ""
           }.en.srt`,
         }));
 
@@ -152,7 +152,7 @@ async function main(dirName, opts) {
       await purge(dir, renamesSet);
     }
 
-    // Rename directory to "title (year)"
-    await fs.rename(dir, join(parent, `${title} (${year})`));
+    // Rename directory to "title (year) {tmdb-id}"
+    await fs.rename(dir, join(parent, `${title} (${year}) {tmdb-${id}}`));
   }
 }
