@@ -146,7 +146,19 @@ async function main(dirName, opts) {
       await purge(dir, renamesSet);
     }
 
-    // Rename directory to "Season XX"
-    await fs.rename(dir, join(parent, `${name} (${year}) {tmdb-${id}}`));
+    const parentFiles = new Set(await fs.readdir(parent));
+    const showDir = `${name} (${year}) {tmdb-${id}}`;
+    if (parentFiles.has(showDir)) {
+      // Move season to already existing show dir
+      await fs.rename(join(dir, seasonDir), join(parent, showDir, seasonDir));
+      // Delete original dir if empty
+      const isEmpty = (await fs.readdir(dir)).length === 0 ? true : false;
+      if (isEmpty) {
+        await fs.rm(dir, { recursive: true, force: true });
+      }
+    } else {
+      // Rename original dir to show dir
+      await fs.rename(dir, join(parent, `${name} (${year}) {tmdb-${id}}`));
+    }
   }
 }
