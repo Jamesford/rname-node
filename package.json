@@ -1,6 +1,6 @@
 {
   "name": "rname",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Plex renamer CLI tool using TMDb",
   "type": "module",
   "main": "index.js",

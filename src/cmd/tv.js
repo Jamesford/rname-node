@@ -7,6 +7,8 @@ import { errors } from "../lib/errors.js";
 import {
   removeTrailingSlash,
   clean,
+  cleanFilename,
+  cleanPath,
   generateRenameTable,
 } from "../lib/utils.js";
 import { getShowByID, getShowByQuery, getEpisodeTitles } from "../lib/tmdb.js";
@@ -112,7 +114,7 @@ async function main(dirName, opts) {
 
     return {
       file: meta.file,
-      rename: rename,
+      rename: cleanFilename(rename),
     };
   });
 
@@ -147,7 +149,7 @@ async function main(dirName, opts) {
     }
 
     const parentFiles = new Set(await fs.readdir(parent));
-    const showDir = `${name} (${year}) {tmdb-${id}}`;
+    const showDir = cleanPath(`${name} (${year}) {tmdb-${id}}`);
     if (parentFiles.has(showDir)) {
       // Move season to already existing show dir
       await fs.rename(join(dir, seasonDir), join(parent, showDir, seasonDir));
@@ -158,7 +160,7 @@ async function main(dirName, opts) {
       }
     } else {
       // Rename original dir to show dir
-      await fs.rename(dir, join(parent, `${name} (${year}) {tmdb-${id}}`));
+      await fs.rename(dir, join(parent, showDir));
     }
   }
 }

@@ -7,6 +7,8 @@ import { errors } from "../lib/errors.js";
 import {
   removeTrailingSlash,
   clean,
+  cleanFilename,
+  cleanPath,
   generateRenameTable,
 } from "../lib/utils.js";
 import { getMovieByID, getMovieByQuery } from "../lib/tmdb.js";
@@ -99,7 +101,7 @@ async function main(dirName, opts) {
   let renames = [
     {
       file: meta.file,
-      rename: `${title} (${year}) {tmdb-${id}}${meta.ext}`,
+      rename: cleanFilename(`${title} (${year}) {tmdb-${id}}${meta.ext}`),
     },
   ];
 
@@ -114,9 +116,11 @@ async function main(dirName, opts) {
         )
         .map((file, i, arr) => ({
           file: `${subtitleDir}/${file}`,
-          rename: `${title} (${year}) {tmdb-${id}}${
-            arr.length > 1 ? ` ${i + 1}` : ""
-          }.en.srt`,
+          rename: cleanFilename(
+            `${title} (${year}) {tmdb-${id}}${
+              arr.length > 1 ? ` ${i + 1}` : ""
+            }.en.srt`
+          ),
         }));
 
       if (subtitleRenames.length > 0) {
@@ -153,6 +157,9 @@ async function main(dirName, opts) {
     }
 
     // Rename directory to "title (year) {tmdb-id}"
-    await fs.rename(dir, join(parent, `${title} (${year}) {tmdb-${id}}`));
+    await fs.rename(
+      dir,
+      join(parent, cleanPath(`${title} (${year}) {tmdb-${id}}`))
+    );
   }
 }
