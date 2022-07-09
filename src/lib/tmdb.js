@@ -14,7 +14,7 @@ export async function getMovieByID(movie_id) {
       language: "en-US",
     },
   });
-  return { id, title, overview, year: release_date.substring(0, 4) };
+  return { id, title, overview, year: release_date?.substring(0, 4) };
 }
 
 export async function getMovieByQuery(query) {
@@ -54,7 +54,7 @@ export async function getMovieByQuery(query) {
     id: r.id,
     title: r.title,
     overview: r.overview,
-    year: r.release_date.substring(0, 4),
+    year: r.release_date?.substring(0, 4),
   }));
 
   if (total_results === 1) return movies[0];
@@ -86,7 +86,7 @@ export async function getShowByID(tv_id) {
       language: "en-US",
     },
   });
-  return { id, name, overview, year: first_air_date.substring(0, 4) };
+  return { id, name, overview, year: first_air_date?.substring(0, 4) };
 }
 
 export async function getShowByQuery(query) {
@@ -116,7 +116,7 @@ export async function getShowByQuery(query) {
     id: r.id,
     name: r.name,
     overview: r.overview,
-    year: r.first_air_date.substring(0, 4),
+    year: r.first_air_date?.substring(0, 4),
   }));
 
   if (total_results === 1) return shows[0];
