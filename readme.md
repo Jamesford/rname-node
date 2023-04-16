@@ -1,3 +1,5 @@
+Moved to [rname-deno](https://github.com/Jamesford/rname-deno)
+
 # rname
 
 ```
